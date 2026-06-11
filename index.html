@@ -226,6 +226,35 @@ body > *{position:relative;z-index:1;}
 .big-stat{text-align:center;padding:10px 0;}
 .big-num{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--verde-neon);line-height:1;}
 .big-label{font-size:.75rem;color:var(--text2);margin-top:3px;}
+/* EXPERIENCIA DE JUEGO */
+.juego-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;margin-bottom:24px;}
+.juego-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;}
+.juego-card-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.juego-card-sub{font-size:.78rem;color:var(--text2);margin-bottom:16px;line-height:1.5;}
+.champion-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;max-height:320px;overflow-y:auto;}
+.champion-btn{background:var(--bg3);border:2px solid var(--border);border-radius:10px;padding:10px 8px;cursor:pointer;text-align:center;transition:all .2s;font-size:.8rem;font-weight:600;}
+.champion-btn:hover{border-color:var(--amarillo);transform:translateY(-2px);}
+.champion-btn.selected{background:rgba(245,197,24,.12);border-color:var(--amarillo);color:var(--amarillo);}
+.champion-flag{font-size:1.6rem;display:block;margin-bottom:4px;}
+.comodin-card{background:linear-gradient(135deg,rgba(245,197,24,.1),rgba(0,230,118,.05));border:2px solid var(--amarillo);border-radius:12px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.comodin-usado{opacity:.5;border-color:var(--border);background:var(--bg3);}
+.comodin-icon{font-size:2rem;flex-shrink:0;}
+.comodin-info{flex:1;}
+.comodin-match{font-weight:700;font-size:.9rem;}
+.comodin-meta{font-size:.75rem;color:var(--text2);margin-top:3px;}
+.btn-usar-comodin{background:var(--amarillo);color:var(--bg);border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:700;font-size:.8rem;white-space:nowrap;transition:opacity .2s;}
+.btn-usar-comodin:hover{opacity:.85;}
+.btn-usar-comodin:disabled{opacity:.4;cursor:not-allowed;}
+.racha-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.racha-row:last-child{border-bottom:none;}
+.racha-fire{font-size:1.4rem;min-width:30px;text-align:center;}
+.racha-info{flex:1;}
+.racha-name{font-weight:600;font-size:.88rem;}
+.racha-sub{font-size:.73rem;color:var(--text2);margin-top:2px;}
+.racha-num{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--rojo);}
+.racha-num.alta{color:var(--verde-neon);}
+.flame-bar{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap;}
+.flame-dot{width:14px;height:14px;border-radius:50%;font-size:.7rem;display:flex;align-items:center;justify-content:center;}
 .tip{position:relative;cursor:help;display:inline-flex;align-items:center;justify-content:center;gap:3px;}
 .tip::after{content:attr(data-tip);position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:#1a1a35;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:.75rem;font-weight:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:99;font-family:'Inter',sans-serif;letter-spacing:0;text-transform:none;max-width:220px;white-space:normal;text-align:center;line-height:1.4;}
 .tip::before{content:'';position:absolute;bottom:115%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#2a2a4a;opacity:0;transition:opacity .2s;pointer-events:none;}
@@ -364,11 +393,14 @@ function apMap(){
 }
 function resMap(){const m={};for(const r of C.resultados)m[r.pid]={l:r.local,v:r.visita};return m;}
 function calcPts(u){
-  const am=apMap()[u]||{},rm=resMap();let t=0,ex=0,gn=0;
+  const am=apMap()[u]||{},rm=resMap();
+  const comodin=localStorage.getItem(`pm_comodin_${u}`)||'';
+  let t=0,ex=0,gn=0;
   for(const pid in am){const a=am[pid],r=rm[pid];if(!r)continue;
     const aL=+a.l,aV=+a.v,rL=+r.l,rV=+r.v;
-    if(aL===rL&&aV===rV){t+=PTS_E;ex++;}
-    else{const ag=aL>aV?'L':aL<aV?'V':'E',rg=rL>rV?'L':rL<rV?'V':'E';if(ag===rg){t+=PTS_G;gn++;}}
+    const x=comodin===pid?2:1;
+    if(aL===rL&&aV===rV){t+=PTS_E*x;ex++;}
+    else{const ag=aL>aV?'L':aL<aV?'V':'E',rg=rL>rV?'L':rL<rV?'V':'E';if(ag===rg){t+=PTS_G*x;gn++;}}
   }
   return{t,ex,gn,n:Object.keys(am).length};
 }
@@ -469,7 +501,7 @@ function bindAuth(){
 
 // SHELL
 function renderShell(){
-  const tabs=[{id:'partidos',lb:'⚽ Partidos'},{id:'mis-apuestas',lb:'📋 Mis Apuestas'},{id:'tabla',lb:'🏆 Tabla'},{id:'resultados',lb:'🎯 Resultados'},{id:'calendario',lb:'📅 Calendario'},{id:'apuestas-todos',lb:'👀 Apuestas'},{id:'estadisticas',lb:'📊 Estadísticas'},{id:'social',lb:'💬 Chat de los Cabros'},{id:'bonus',lb:'🌟 Bonus'}];
+  const tabs=[{id:'partidos',lb:'⚽ Partidos'},{id:'mis-apuestas',lb:'📋 Mis Apuestas'},{id:'tabla',lb:'🏆 Tabla'},{id:'resultados',lb:'🎯 Resultados'},{id:'calendario',lb:'📅 Calendario'},{id:'apuestas-todos',lb:'👀 Apuestas'},{id:'estadisticas',lb:'📊 Estadísticas'},{id:'juego',lb:'🎮 Juego'},{id:'social',lb:'💬 Chat de los Cabros'},{id:'bonus',lb:'🌟 Bonus'}];
   const u=S.user;
   return`
   <div class="header">
@@ -494,6 +526,7 @@ function renderShell(){
     ${S.page==='calendario'?rCalendario():''}
     ${S.page==='apuestas-todos'?rApuestasTodos():''}
     ${S.page==='estadisticas'?rEstadisticas():''}
+    ${S.page==='juego'?rJuego():''}
     ${S.page==='social'?rSocial():''}
     ${S.page==='bonus'?rBonus():''}
   </div>
@@ -730,7 +763,7 @@ function rApuestasTodos(){
     ${usuarios.map(u=>`
       <button data-usel="${u.user}" style="
         display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;cursor:pointer;
-        font-size:.82rem;font-weight:600;transition:all .2s;border:2px solid ${u.user===uSel?u.color||uclr(u.nombre):' var(--border)'};
+        font-size:.82rem;font-weight:600;transition:all .2s;border:2px solid ${u.user===uSel?u.color||uclr(u.nombre):'var(--border)'};
         background:${u.user===uSel?'rgba(0,0,0,.3)':'var(--bg3)'};
         color:${u.user===uSel?u.color||uclr(u.nombre):'var(--text2)'}">
         <div style="width:24px;height:24px;border-radius:50%;background:${u.color||uclr(u.nombre)};display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--bg);flex-shrink:0">${u.nombre[0].toUpperCase()}</div>
@@ -829,7 +862,7 @@ function rEstadisticas(){
     else partidosOp[a.pid].E++;
     partidosOp[a.pid].total++;
   }
-  const polémicos=Object.entries(partidosOp)
+  const polemicos=Object.entries(partidosOp)
     .filter(([,o])=>o.total>=2)
     .map(([pid,o])=>{
       const p=TODOS.find(x=>x.id===pid); if(!p) return null;
@@ -934,9 +967,9 @@ function rEstadisticas(){
         <span style="color:var(--amarillo)">Más división = más interesante</span> — nadie sabe quién gana.
       </div>
       <div style="font-size:.75rem;color:var(--text2);margin-bottom:12px">Mayor diferencia de opiniones entre participantes</div>
-      ${!polémicos.length
+      ${!polemicos.length
         ?'<div style="color:var(--text2);font-size:.85rem">Sin suficientes apuestas aún</div>'
-        :polémicos.map(({p,o})=>{
+        :polemicos.map(({p,o})=>{
           const tot=o.total||1;
           const pL=Math.round(o.L/tot*100), pV=Math.round(o.V/tot*100), pE=Math.round(o.E/tot*100);
           return`
@@ -957,6 +990,165 @@ function rEstadisticas(){
             <div style="font-size:.72rem;color:var(--text2);margin-top:4px">${tot} apuesta${tot>1?'s':''}</div>
           </div>`;
         }).join('')}
+    </div>
+
+  </div>`;
+}
+
+// 🎮 EXPERIENCIA DE JUEGO
+function rJuego(){
+  const me=S.user.user;
+  const am=apMap(), rm=resMap();
+  const misAp=am[me]||{};
+
+  // ── CAMPEÓN ──────────────────────────────────────────────────
+  const miCampeon=localStorage.getItem(`pm_campeon_${me}`)||'';
+  const todosCampeones=C.users.map(u=>{
+    const c=localStorage.getItem(`pm_campeon_${u.user}`)||'';
+    return{nombre:u.nombre,color:u.color||uclr(u.nombre),campeon:c};
+  }).filter(u=>u.campeon);
+
+  // Equipos únicos de todos los partidos
+  const equiposUnicos=[...new Set(TODOS.flatMap(p=>[p.loc.n, p.vis.n]))].sort();
+  const equiposConFlag={};
+  TODOS.forEach(p=>{equiposConFlag[p.loc.n]=p.loc.f; equiposConFlag[p.vis.n]=p.vis.f;});
+
+  // ── COMODÍN x2 ───────────────────────────────────────────────
+  const comodinUsado=localStorage.getItem(`pm_comodin_${me}`)||'';
+  const partidosCandidatos=TODOS.filter(p=>{
+    const cd=getCountdown(p.id);
+    return cd && cd.tipo!=='done';
+  }).slice(0,20);
+
+  // ── RACHA DE ACIERTOS ────────────────────────────────────────
+  function calcRacha(username){
+    const apU=am[username]||{};
+    // Partidos con resultado, ordenados por id
+    const jugados=TODOS.filter(p=>rm[p.id]&&apU[p.id]);
+    let rachaActual=0, rachaMejor=0, temp=0;
+    const historial=[];
+    for(const p of jugados){
+      const ap=apU[p.id], res=rm[p.id];
+      const aL=+ap.l,aV=+ap.v,rL=+res.l,rV=+res.v;
+      let ok=false;
+      if(aL===rL&&aV===rV) ok=true;
+      else{const ag=aL>aV?'L':aL<aV?'V':'E',rg=rL>rV?'L':rL<rV?'V':'E';if(ag===rg)ok=true;}
+      historial.push({pid:p.id,ok,p});
+      if(ok){temp++;if(temp>rachaMejor)rachaMejor=temp;}
+      else temp=0;
+    }
+    // Racha actual (desde el final)
+    for(let i=historial.length-1;i>=0;i--){
+      if(historial[i].ok)rachaActual++;
+      else break;
+    }
+    return{rachaActual,rachaMejor,historial:historial.slice(-10)};
+  }
+
+  const rachas=C.users.map(u=>{
+    const r=calcRacha(u.user);
+    return{...u,...r};
+  }).sort((a,b)=>b.rachaActual-a.rachaActual||b.rachaMejor-a.rachaMejor);
+
+  const miRacha=calcRacha(me);
+
+  return`
+  <div class="section-title">🎮 EXPERIENCIA DE JUEGO</div>
+  <div class="section-sub">Funciones extra para hacer la polla más entretenida</div>
+
+  <div class="juego-grid">
+
+    <!-- 🏆 PREDICCIÓN DEL CAMPEÓN -->
+    <div class="juego-card" style="grid-column:1/-1">
+      <div class="juego-card-title" style="color:var(--amarillo)">🏆 Predicción del Campeón</div>
+      <div class="juego-card-sub">
+        ¿Quién va a ganar el Mundial 2026? Elige tu equipo — vale <strong style="color:var(--amarillo)">20 puntos extra</strong> si aciertas al campeón final.<br>
+        ${miCampeon?`Tu predicción actual: <strong style="color:var(--verde-neon)">${equiposConFlag[miCampeon]||''} ${miCampeon}</strong>`:'Aún no has elegido tu campeón.'}
+      </div>
+      ${todosCampeones.length?`
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        ${todosCampeones.map(u=>`
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:.78rem;display:flex;align-items:center;gap:6px">
+            <div style="width:18px;height:18px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:var(--bg)">${u.nombre[0]}</div>
+            <span style="color:var(--text2)">${u.nombre}:</span>
+            <strong>${equiposConFlag[u.campeon]||''} ${u.campeon}</strong>
+          </div>`).join('')}
+      </div>`:''}
+      <div style="font-size:.78rem;color:var(--text2);margin-bottom:10px">Selecciona tu campeón:</div>
+      <div class="champion-grid">
+        ${equiposUnicos.map(eq=>`
+          <button class="champion-btn ${miCampeon===eq?'selected':''}" data-campeon="${eq}">
+            <span class="champion-flag">${equiposConFlag[eq]||'🏳️'}</span>
+            ${eq}
+          </button>`).join('')}
+      </div>
+    </div>
+
+    <!-- 🃏 COMODÍN x2 -->
+    <div class="juego-card">
+      <div class="juego-card-title" style="color:var(--amarillo)">🃏 Comodín x2</div>
+      <div class="juego-card-sub">
+        Tienes <strong style="color:var(--amarillo)">1 comodín</strong> para usar en cualquier partido que aún no haya comenzado.<br>
+        Si aciertas el resultado, tus puntos se <strong style="color:var(--verde-neon)">duplican</strong> para ese partido.
+      </div>
+      ${comodinUsado
+        ?`<div class="comodin-card comodin-usado">
+            <div class="comodin-icon">🃏</div>
+            <div class="comodin-info">
+              <div class="comodin-match">Comodín usado en:</div>
+              <div class="comodin-meta">${(()=>{const p=TODOS.find(x=>x.id===comodinUsado);return p?`${p.loc.f} ${p.loc.n} vs ${p.vis.n} ${p.vis.f}`:'Partido desconocido';})()}</div>
+            </div>
+            <div style="font-size:.75rem;color:var(--verde-neon);font-weight:700">✅ Activo</div>
+          </div>`
+        :`<div style="font-size:.78rem;color:var(--text2);margin-bottom:10px">Elige el partido donde quieres usar el comodín:</div>
+         <div style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px">
+           ${partidosCandidatos.length
+             ?partidosCandidatos.map(p=>`
+               <div class="comodin-card" style="padding:10px 12px">
+                 <div class="comodin-icon" style="font-size:1.2rem">⚽</div>
+                 <div class="comodin-info">
+                   <div class="comodin-match" style="font-size:.83rem">${p.loc.f} ${p.loc.n} vs ${p.vis.n} ${p.vis.f}</div>
+                   <div class="comodin-meta">Grupo ${p.gid} · ${p.fd}</div>
+                 </div>
+                 <button class="btn-usar-comodin" data-usarcomodin="${p.id}">Usar 🃏</button>
+               </div>`).join('')
+             :'<div style="color:var(--text2);font-size:.85rem;padding:10px">No hay partidos disponibles</div>'
+           }
+         </div>`
+      }
+    </div>
+
+    <!-- 🔥 RACHA DE ACIERTOS -->
+    <div class="juego-card">
+      <div class="juego-card-title" style="color:var(--rojo)">🔥 Racha de Aciertos</div>
+      <div class="juego-card-sub">
+        Aciertos consecutivos desde el último partido fallado. Cuanto más larga la racha, más 🔥.
+      </div>
+
+      ${miRacha.historial.length?`
+      <div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:16px">
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:8px">Tus últimos ${miRacha.historial.length} partidos:</div>
+        <div class="flame-bar">
+          ${miRacha.historial.map(h=>`
+            <div class="flame-dot" style="background:${h.ok?'var(--verde-neon)':'var(--rojo)'};" title="${h.p.loc.n} vs ${h.p.vis.n}">
+              ${h.ok?'✓':'✗'}
+            </div>`).join('')}
+        </div>
+        <div style="font-size:.75rem;color:var(--text2);margin-top:8px">
+          Racha actual: <strong style="color:${miRacha.rachaActual>=3?'var(--verde-neon)':'var(--amarillo)'}">${miRacha.rachaActual} 🔥</strong>
+          &nbsp;·&nbsp; Mejor racha: <strong style="color:var(--amarillo)">${miRacha.rachaMejor}</strong>
+        </div>
+      </div>`:'<div style="color:var(--text2);font-size:.83rem;margin-bottom:16px">Aún no hay resultados para calcular tu racha.</div>'}
+
+      ${rachas.filter(u=>u.historial.length>0).map((u,i)=>`
+        <div class="racha-row">
+          <div class="racha-fire">${u.rachaActual>=5?'🔥🔥':u.rachaActual>=3?'🔥':u.rachaActual>=1?'⚡':'💀'}</div>
+          <div class="racha-info">
+            <div class="racha-name">${u.nombre} ${u.user===me?'<span class="pill-v">Tú</span>':''}</div>
+            <div class="racha-sub">Mejor racha: ${u.rachaMejor} · ${u.historial.length} partidos jugados</div>
+          </div>
+          <div class="racha-num ${u.rachaActual>=3?'alta':''}">${u.rachaActual}</div>
+        </div>`).join('')||'<div style="color:var(--text2);font-size:.83rem">Sin datos aún</div>'}
     </div>
 
   </div>`;
@@ -1031,6 +1223,9 @@ function rCalendario(){
 
 // BONUS
 function rBonus(){
+  const pdfId='1_gx0hGR261URqsTs2qtW2TmQN3QF7BHs';
+  const pdfView=`https://drive.google.com/file/d/${pdfId}/view?usp=sharing`;
+  const pdfDownload=`https://drive.google.com/uc?export=download&id=${pdfId}`;
   return`
   <div style="display:flex;flex-direction:column;align-items:center;gap:20px;padding:10px 0">
     <div style="text-align:center">
@@ -1043,6 +1238,17 @@ function rBonus(){
     <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 28px;text-align:center;max-width:480px;width:100%">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:3px;color:var(--rojo)">🇨🇱 VAMOS CHILE! 🇨🇱</div>
       <div style="color:var(--text2);font-size:.88rem;margin-top:6px">La Roja siempre en el corazón de los Amigos de Chicauma</div>
+    </div>
+    <!-- PDF -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 28px;text-align:center;max-width:480px;width:100%">
+      <div style="font-size:2.5rem;margin-bottom:8px">📄</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:var(--amarillo);margin-bottom:6px">DOCUMENTO BONUS</div>
+      <div style="color:var(--text2);font-size:.83rem;margin-bottom:18px">laminitas jejejee :) </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <a href="${pdfDownload}" target="_blank" style="background:var(--verde-neon);color:var(--bg);border:none;border-radius:9px;padding:11px 22px;font-weight:700;font-size:.88rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          ⬇️ Descargar PDF
+        </a>
+      </div>
     </div>
   </div>`;
 }
@@ -1128,6 +1334,34 @@ function bindApp(){
   });
   document.querySelectorAll('[data-addcal]').forEach(el=>{
     el.addEventListener('click',()=>agregarAlCalendario(el.dataset.addcal));
+  });
+
+  // SELECTOR PARTICIPANTE (pestaña Apuestas)
+  document.querySelectorAll('[data-usel]').forEach(el=>{
+    el.addEventListener('click',()=>ss({apTodosUser:el.dataset.usel}));
+  });
+
+  // CAMPEÓN
+  document.querySelectorAll('[data-campeon]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const eq=el.dataset.campeon;
+      localStorage.setItem(`pm_campeon_${S.user.user}`,eq);
+      toast(`🏆 Campeón guardado: ${eq}`);
+      ss({page:'juego'});
+    });
+  });
+
+  // COMODÍN
+  document.querySelectorAll('[data-usarcomodin]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const pid=el.dataset.usarcomodin;
+      const p=TODOS.find(x=>x.id===pid);
+      if(!p) return;
+      if(!confirm(`¿Usar tu comodín x2 en:\n${p.loc.n} vs ${p.vis.n}?\n\nEsta acción no se puede deshacer.`)) return;
+      localStorage.setItem(`pm_comodin_${S.user.user}`,pid);
+      mostrarNotif({icono:'🃏',titulo:'¡Comodín activado!',subtitulo:`${p.loc.n} vs ${p.vis.n} · Si aciertas, tus puntos se duplican`,tipo:'',duracion:6000});
+      ss({page:'juego'});
+    });
   });
 
   // abrir modal
