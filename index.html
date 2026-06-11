@@ -29,9 +29,14 @@ body > *{position:relative;z-index:1;}
 .theme-toggle{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 10px;cursor:pointer;font-size:.8rem;display:flex;align-items:center;gap:5px;transition:all .2s;color:var(--text2);}
 .theme-toggle:hover{border-color:var(--verde-neon);color:var(--verde-neon);}
 
-/* CONFETTI */
-.confetti-piece{position:fixed;width:10px;height:10px;top:-20px;z-index:9999;pointer-events:none;border-radius:2px;animation:confettiFall linear forwards;}
-@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+/* LLUVIA DE BANDERAS */
+@keyframes flagFall{
+  0%{transform:translateY(0) rotate(0deg) scale(1);opacity:1;}
+  20%{transform:translateY(20vh) rotate(15deg) scale(1.1);}
+  50%{transform:translateY(55vh) rotate(-10deg) scale(.95);}
+  80%{transform:translateY(85vh) rotate(8deg);opacity:.8;}
+  100%{transform:translateY(110vh) rotate(-5deg) scale(.9);opacity:0;}
+}
 
 /* ANIMACIÓN GOL */
 .gol-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;pointer-events:none;}
@@ -44,10 +49,17 @@ body > *{position:relative;z-index:1;}
 .countdown.soon{background:rgba(245,197,24,.12);color:var(--amarillo);border:1px solid rgba(245,197,24,.3);}
 .countdown.future{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
 .countdown.done{background:rgba(0,230,118,.1);color:var(--verde-neon);border:1px solid rgba(0,230,118,.2);}
-.header{background:linear-gradient(135deg,var(--bg2) 0%,var(--verde) 100%);border-bottom:2px solid var(--verde-neon);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 4px 30px rgba(0,230,118,.15);}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:2px;color:var(--amarillo);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.header{background:linear-gradient(135deg,#0a1628 0%,#0d2a1a 50%,#0a1628 100%);border-bottom:2px solid var(--verde-neon);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:72px;position:sticky;top:0;z-index:100;box-shadow:0 4px 40px rgba(0,230,118,.12),0 2px 0 rgba(0,230,118,.3);}
+.logo{display:flex;flex-direction:column;justify-content:center;gap:2px;}
+.logo-top{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:3px;line-height:1;display:flex;align-items:center;gap:6px;}
+.logo-top .pre{color:#fff;opacity:.85;}
+.logo-top .g{color:var(--verde-neon);text-shadow:0 0 16px rgba(0,230,118,.6);}
+.logo-top .yr{color:var(--amarillo);text-shadow:0 0 12px rgba(245,197,24,.4);}
+.logo-top .ball{font-size:1.1rem;}
+.logo-bot{font-size:.6rem;letter-spacing:5px;color:var(--verde-neon);opacity:.7;text-transform:uppercase;font-weight:700;padding-left:1px;display:flex;align-items:center;gap:6px;}
+.logo-bot::before{content:'';display:inline-block;width:16px;height:1px;background:var(--verde-neon);opacity:.6;}
 .logo .g{color:var(--verde-neon);}
-.logo .sub{color:var(--amarillo);font-size:.85rem;font-family:'Bebas Neue',sans-serif;font-weight:400;letter-spacing:3px;opacity:.75;border-left:2px solid var(--verde-neon);padding-left:10px;margin-left:2px;}
+.logo .sub{color:var(--amarillo);}
 .user-info{display:flex;align-items:center;gap:10px;}
 .avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--bg);font-size:.85rem;flex-shrink:0;}
 .btn-logout{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:8px;cursor:pointer;font-size:.78rem;transition:all .2s;}
@@ -506,8 +518,13 @@ function renderShell(){
   return`
   <div class="header">
     <div class="logo">
-      
-      GRAN POLLA <span class="g">MUNDIAL</span> 2026 <span class="sub">· AMIGOS DE CHICAUMA</span>
+      <div class="logo-top">
+        <span class="ball">⚽</span>
+        <span class="pre">GRAN POLLA</span>
+        <span class="g">MUNDIAL</span>
+        <span class="yr">2026</span>
+      </div>
+      <div class="logo-bot">Amigos de Chicauma · FIFA World Cup</div>
     </div>
     <div class="user-info">
       <div class="avatar" style="background:${u.color||uclr(u.nombre)}">${u.nombre[0].toUpperCase()}</div>
@@ -1426,21 +1443,23 @@ function updateThemeBtn(){
   btn.textContent=isLight?'🌙 Oscuro':'☀️ Claro';
 }
 
-// ── CONFETTI ──────────────────────────────────────────────────
-function lanzarConfetti(n=80){
-  const colors=['#f5c518','#00e676','#ff4081','#4488ff','#ff9800','#fff'];
+// ── LLUVIA DE BANDERAS ────────────────────────────────────────
+function lanzarConfetti(n=60){
+  const banderas=['🇲🇽','🇿🇦','🇰🇷','🇨🇿','🇨🇦','🇧🇦','🇶🇦','🇨🇭','🇩🇪','🇨🇼','🇳🇱','🇯🇵','🇨🇮','🇪🇨','🇸🇪','🇹🇳','🇪🇸','🇨🇻','🇧🇪','🇪🇬','🇸🇦','🇺🇾','🇮🇷','🇳🇿','🇫🇷','🇸🇳','🇮🇶','🇳🇴','🇦🇷','🇦🇹','🇯🇴','🇩🇿','🇵🇹','🇺🇿','🏴󠁧󠁢󠁥󠁮󠁧󠁿','🇬🇭','🇵🇦','🇭🇷','🇨🇴','🇨🇩','🇧🇷','🇭🇹','🇲🇦','🏴󠁧󠁢󠁳󠁣󠁴󠁿'];
   for(let i=0;i<n;i++){
     const el=document.createElement('div');
-    el.className='confetti-piece';
     el.style.cssText=`
+      position:fixed;
+      top:-40px;
       left:${Math.random()*100}vw;
-      background:${colors[Math.floor(Math.random()*colors.length)]};
-      width:${6+Math.random()*8}px;
-      height:${6+Math.random()*8}px;
-      border-radius:${Math.random()>.5?'50%':'2px'};
-      animation-duration:${2+Math.random()*2}s;
-      animation-delay:${Math.random()*1.5}s;
+      font-size:${18+Math.random()*18}px;
+      z-index:9999;
+      pointer-events:none;
+      animation:flagFall ${2.5+Math.random()*2.5}s linear forwards;
+      animation-delay:${Math.random()*2}s;
+      filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));
     `;
+    el.textContent=banderas[Math.floor(Math.random()*banderas.length)];
     document.body.appendChild(el);
     el.addEventListener('animationend',()=>el.remove());
   }
