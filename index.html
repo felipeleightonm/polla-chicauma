@@ -127,6 +127,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .spinner{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--verde-neon);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @media(max-width:580px){.tabla-header,.tabla-row{grid-template-columns:34px 1fr repeat(3,46px);}.scoreboard-divider{display:none;}}
+.tip{position:relative;cursor:help;display:inline-flex;align-items:center;justify-content:center;gap:3px;}
+.tip::after{content:attr(data-tip);position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:#1a1a35;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:.75rem;font-weight:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:99;font-family:'Inter',sans-serif;letter-spacing:0;text-transform:none;max-width:220px;white-space:normal;text-align:center;line-height:1.4;}
+.tip::before{content:'';position:absolute;bottom:115%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#2a2a4a;opacity:0;transition:opacity .2s;pointer-events:none;}
+.tip:hover::after,.tip:hover::before{opacity:1;}
 </style>
 </head>
 <body>
@@ -357,7 +361,7 @@ function bindAuth(){
 
 // SHELL
 function renderShell(){
-  const tabs=[{id:'partidos',lb:'⚽ Partidos'},{id:'mis-apuestas',lb:'📋 Mis Apuestas'},{id:'tabla',lb:'🏆 Tabla'},{id:'resultados',lb:'🎯 Resultados'},{id:'calendario',lb:'📅 Calendario'},{id:'bonus',lb:'🌟 Bonus'}];
+  const tabs=[{id:'partidos',lb:'⚽ Partidos'},{id:'mis-apuestas',lb:'📋 Mis Apuestas'},{id:'tabla',lb:'🏆 Tabla'},{id:'resultados',lb:'🎯 Resultados'},{id:'calendario',lb:'📅 Calendario'},{id:'apuestas-todos',lb:'👀 Apuestas'},{id:'bonus',lb:'🌟 Bonus'}];
   const u=S.user;
   return`
   <div class="header">
@@ -376,6 +380,7 @@ function renderShell(){
     ${S.page==='tabla'?rTabla():''}
     ${S.page==='resultados'?rResultados():''}
     ${S.page==='calendario'?rCalendario():''}
+    ${S.page==='apuestas-todos'?rApuestasTodos():''}
     ${S.page==='bonus'?rBonus():''}
   </div>
   ${S.modal?rModal():''}`;
@@ -499,8 +504,15 @@ function rTabla(){
   <div class="section-title">TABLA DE POSICIONES</div>
   <div class="section-sub">Actualización automática cada ${SYNC_MS/1000}s · todos los amigos ven la misma tabla en tiempo real</div>
   <div class="tabla-wrap">
-    <div class="tabla-header"><div>#</div><div>Participante</div><div>PTS</div><div>⭐</div><div>✅</div><div>📋</div></div>
-    ${rows.map((u,i)=>`<div class="tabla-row ${u.user===me?'me':''}">
+    <div class="tabla-header" style="grid-template-columns:38px 1fr repeat(4,90px)">
+      <div>#</div>
+      <div>Participante</div>
+      <div>PTS</div>
+      <div>⭐ Exacto</div>
+      <div>✅ Ganador</div>
+      <div>📋 Apuestas</div>
+    </div>
+    ${rows.map((u,i)=>`<div class="tabla-row ${u.user===me?'me':''}" style="grid-template-columns:38px 1fr repeat(4,90px)">
       <div class="rank ${rc(i)}">${re(i)||i+1}</div>
       <div class="user-cell">
         <div class="mini-av" style="background:${u.color||uclr(u.nombre)}">${(u.nombre||'?')[0].toUpperCase()}</div>
@@ -513,8 +525,38 @@ function rTabla(){
       <div class="num-cell">${u.n}</div>
     </div>`).join('')}
   </div>
-  <div style="margin-top:12px;font-size:.72rem;color:var(--text2);display:flex;gap:16px;flex-wrap:wrap">
-    <span>PTS=Puntos</span><span>⭐=Exactos(${PTS_E}pts)</span><span>✅=Ganadores(${PTS_G}pts)</span><span>📋=Nº apuestas</span>
+  <div style="margin-top:10px">
+    <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.arr').textContent=this.nextElementSibling.style.display==='none'?'▸':'▾'"
+      style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:.78rem;display:flex;align-items:center;gap:6px;transition:all .2s"
+      onmouseover="this.style.borderColor='var(--verde-neon)';this.style.color='var(--verde-neon)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+      <span class="arr">▸</span> ¿Cómo se calculan los puntos?
+    </button>
+    <div style="display:none;margin-top:8px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--amarillo);margin-bottom:14px">SISTEMA DE PUNTUACIÓN</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:14px;padding:10px 14px;background:var(--bg3);border-radius:8px">
+          <div style="font-size:1.4rem;min-width:32px;text-align:center">PTS</div>
+          <div><div style="font-weight:600;font-size:.88rem;color:var(--amarillo)">Puntos totales</div><div style="font-size:.78rem;color:var(--text2);margin-top:2px">Suma de todos los puntos acumulados en la polla</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:10px 14px;background:var(--bg3);border-radius:8px">
+          <div style="font-size:1.4rem;min-width:32px;text-align:center">⭐</div>
+          <div><div style="font-weight:600;font-size:.88rem;color:var(--verde-neon)">Resultado exacto — ${PTS_E} puntos</div><div style="font-size:.78rem;color:var(--text2);margin-top:2px">Acertaste el marcador exacto · ej: predijiste 2-1 y salió 2-1</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:10px 14px;background:var(--bg3);border-radius:8px">
+          <div style="font-size:1.4rem;min-width:32px;text-align:center">✅</div>
+          <div><div style="font-weight:600;font-size:.88rem;color:var(--amarillo)">Ganador correcto — ${PTS_G} puntos</div><div style="font-size:.78rem;color:var(--text2);margin-top:2px">Acertaste quién gana o el empate, pero no el marcador exacto</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:10px 14px;background:var(--bg3);border-radius:8px">
+          <div style="font-size:1.4rem;min-width:32px;text-align:center">📋</div>
+          <div><div style="font-weight:600;font-size:.88rem;color:var(--text)">Apuestas realizadas</div><div style="font-size:.78rem;color:var(--text2);margin-top:2px">Total de partidos en los que apostaste (de ${TODOS.length} posibles)</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:10px 14px;background:rgba(255,68,68,.07);border:1px solid rgba(255,68,68,.2);border-radius:8px">
+          <div style="font-size:1.4rem;min-width:32px;text-align:center">❌</div>
+          <div><div style="font-weight:600;font-size:.88rem;color:var(--rojo)">Error — 0 puntos</div><div style="font-size:.78rem;color:var(--text2);margin-top:2px">Ni el ganador ni el marcador fueron correctos</div></div>
+        </div>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -549,7 +591,76 @@ function rResultados(){
 }
 
 
-// CALENDARIO
+// APUESTAS DE TODOS
+function rApuestasTodos(){
+  const am=apMap(),rm=resMap();
+  const usuarios=C.users;
+  if(!usuarios.length)return`<div class="empty"><div class="ico">👀</div><p>Sin participantes aún.</p></div>`;
+
+  // filtro de usuario seleccionado
+  const uSel=S.apTodosUser||usuarios[0].user;
+  const uObj=usuarios.find(u=>u.user===uSel)||usuarios[0];
+  const misAp=am[uSel]||{};
+  const keys=Object.keys(misAp);
+
+  const {t,ex,gn}=calcPts(uSel);
+
+  return`
+  <div class="section-title">👀 APUESTAS DE TODOS</div>
+  <div class="section-sub">Solo lectura · selecciona un participante para ver sus predicciones</div>
+
+  <!-- Selector de usuario -->
+  <div class="flex-g" style="margin-bottom:22px;gap:8px">
+    ${usuarios.map(u=>`
+      <button data-usel="${u.user}" style="
+        display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;cursor:pointer;
+        font-size:.82rem;font-weight:600;transition:all .2s;border:2px solid ${u.user===uSel?u.color||uclr(u.nombre):' var(--border)'};
+        background:${u.user===uSel?'rgba(0,0,0,.3)':'var(--bg3)'};
+        color:${u.user===uSel?u.color||uclr(u.nombre):'var(--text2)'}">
+        <div style="width:24px;height:24px;border-radius:50%;background:${u.color||uclr(u.nombre)};display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--bg);flex-shrink:0">${u.nombre[0].toUpperCase()}</div>
+        ${u.nombre}${u.user===S.user.user?' (Tú)':''}
+      </button>`).join('')}
+  </div>
+
+  <!-- Stats del usuario seleccionado -->
+  <div class="stats-strip" style="margin-bottom:20px">
+    <div class="stat-p"><div class="lbl">Puntos</div><div class="val">${t}</div></div>
+    <div class="stat-p"><div class="lbl">Exactos</div><div class="val">${ex}</div><div class="sub">${PTS_E} pts c/u</div></div>
+    <div class="stat-p"><div class="lbl">Ganadores</div><div class="val">${gn}</div><div class="sub">${PTS_G} pts c/u</div></div>
+    <div class="stat-p"><div class="lbl">Apuestas</div><div class="val">${keys.length}</div><div class="sub">de ${TODOS.length}</div></div>
+  </div>
+
+  ${!keys.length
+    ? `<div class="empty"><div class="ico">📋</div><p><strong>${uObj.nombre}</strong> aún no ha apostado.</p></div>`
+    : `<div class="grid-ap">
+      ${TODOS.filter(p=>misAp[p.id]).map(p=>{
+        const ap=misAp[p.id],res=rm[p.id];
+        let pl='',bg='';
+        if(res){
+          const aL=+ap.l,aV=+ap.v,rL=+res.l,rV=+res.v;
+          if(aL===rL&&aV===rV){pl=`<span class="pts-ex">+${PTS_E} pts ⭐</span>`;bg='<span class="badge-ex">EXACTO</span>';}
+          else{const ag=aL>aV?'L':aL<aV?'V':'E',rg=rL>rV?'L':rL<rV?'V':'E';
+            pl=ag===rg?`<span class="pts-gn">+${PTS_G} pts ✅</span>`:`<span class="pts-0">0 pts</span>`;}
+        }
+        return`<div class="ap-card">
+          <div class="ap-card-h">
+            <div>
+              <div class="ap-match">${p.loc.f} ${p.loc.n} vs ${p.vis.n} ${p.vis.f}</div>
+              <div class="ap-meta">Grupo ${p.gid} · ${p.fd}</div>
+            </div>${bg}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:.72rem;color:var(--text2)">Apuesta: </span><span class="ap-res">${ap.l} - ${ap.v}</span></div>
+            ${res?`<div style="font-size:.78rem"><span style="color:var(--text2)">Real: </span><strong>${res.l}-${res.v}</strong></div>`:'<div style="font-size:.72rem;color:var(--text2)">Sin resultado</div>'}
+          </div>
+          ${pl?`<div style="margin-top:7px">${pl}</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>`
+  }`;
+}
+
+
 function rCalendario(){
   return`
   <div class="section-title">CALENDARIO PRIMERA RONDA</div>
@@ -585,6 +696,7 @@ function bindApp(){
   document.querySelectorAll('[data-fg]').forEach(el=>el.addEventListener('click',()=>ss({fg:el.dataset.fg})));
   document.getElementById('b-ret')?.addEventListener('click',()=>sync().then(()=>render()));
   document.getElementById('b-ref')?.addEventListener('click',()=>sync().then(()=>render()));
+  document.querySelectorAll('[data-usel]').forEach(el=>el.addEventListener('click',()=>ss({apTodosUser:el.dataset.usel})));
 
   // abrir modal
   document.querySelectorAll('[data-pid].btn-save:not(.rs)').forEach(el=>{
