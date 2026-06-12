@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Gran Polla Mundial 2026 · Amigos de Chicauma</title>
+<title>Gran Polla Mundial 2026 · Amigos del Pipe</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--verde:#1a5c38;--verde-neon:#00e676;--amarillo:#f5c518;--bg:#0d0d1a;--bg2:#12122a;--bg3:#1a1a35;--card:#1e1e3a;--border:#2a2a4a;--text:#e8e8f0;--text2:#8888aa;--rojo:#ff4444;}
@@ -470,7 +470,7 @@ function renderAuth(){
              onerror="this.style.display='none'"/>
       </div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:3px;color:var(--amarillo);line-height:1.1">
-        GRAN POLLA <span style="color:var(--verde-neon)">MUNDIAL</span><br>AMIGOS DE CHICAUMA
+        GRAN POLLA <span style="color:var(--verde-neon)">MUNDIAL</span><br>AMIGOS DEL PIPE
       </div>
       <div style="color:var(--text2);font-size:.83rem;margin-top:8px">FIFA World Cup 2026 · USA · Canadá · México</div>
     </div>
@@ -524,7 +524,7 @@ function renderShell(){
         <span class="g">MUNDIAL</span>
         <span class="yr">2026</span>
       </div>
-      <div class="logo-bot">Amigos de Chicauma · FIFA World Cup</div>
+      <div class="logo-bot">Amigos del Pipe · FIFA World Cup</div>
     </div>
     <div class="user-info">
       <div class="avatar" style="background:${u.color||uclr(u.nombre)}">${u.nombre[0].toUpperCase()}</div>
@@ -1186,7 +1186,7 @@ function rSocial(){
   }
   return`
   <div class="section-title">💬 CHAT DE LOS CABROS</div>
-  <div class="section-sub">El vestuario de los Amigos de Chicauma · ${msgs.length} mensajes</div>
+  <div class="section-sub">El vestuario de los Amigos del Pipe · ${msgs.length} mensajes</div>
   <div class="chat-wrap">
     ${!msgs.length
       ?`<div class="chat-empty">🏟️ Nadie ha escrito aún.<br>¡Sé el primero en romper el silencio!</div>`
@@ -1247,14 +1247,11 @@ function rBonus(){
   <div style="display:flex;flex-direction:column;align-items:center;gap:20px;padding:10px 0">
     <div style="text-align:center">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;color:var(--amarillo)">🌟 BONUS</div>
-      <div style="color:var(--text2);font-size:.85rem;margin-top:4px">El crack de Chicauma en acción</div>
-    </div>
-    <div style="max-width:480px;width:100%;border-radius:16px;overflow:hidden;border:2px solid var(--rojo);box-shadow:0 0 40px rgba(255,68,68,.3);line-height:0">
-      <img src="img2.png" style="width:100%;display:block" alt="Bonus - La Roja"/>
+      <div style="color:var(--text2);font-size:.85rem;margin-top:4px">El crack del Pipe en acción</div>
     </div>
     <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 28px;text-align:center;max-width:480px;width:100%">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:3px;color:var(--rojo)">🇨🇱 VAMOS CHILE! 🇨🇱</div>
-      <div style="color:var(--text2);font-size:.88rem;margin-top:6px">La Roja siempre en el corazón de los Amigos de Chicauma</div>
+      <div style="color:var(--text2);font-size:.88rem;margin-top:6px">La Roja siempre en el corazón de los Amigos del Pipe</div>
     </div>
     <!-- PDF -->
     <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 28px;text-align:center;max-width:480px;width:100%">
@@ -1661,14 +1658,14 @@ function agregarAlCalendario(pid){
 
   const ics=`BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Polla Chicauma//Mundial 2026//ES
+PRODID:-//Polla Amigos del Pipe//Mundial 2026//ES
 BEGIN:VEVENT
-UID:${pid}-mundial2026@chicauma
+UID:${pid}-mundial2026@amigospipe
 DTSTAMP:${fmt(new Date())}
 DTSTART:${fmt(start)}
 DTEND:${fmt(end)}
 SUMMARY:⚽ ${p.loc.n} vs ${p.vis.n} - Mundial 2026
-DESCRIPTION:Grupo ${p.gid} · Polla Amigos de Chicauma
+DESCRIPTION:Grupo ${p.gid} · Polla Amigos del Pipe
 LOCATION:FIFA World Cup 2026
 END:VEVENT
 END:VCALENDAR`;
@@ -1693,7 +1690,7 @@ END:VCALENDAR`;
   initTheme();
   document.getElementById('root').innerHTML=`<div class="ld">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:3px;color:var(--amarillo)">⚽ GRAN POLLA MUNDIAL</div>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:3px;color:var(--text2)">AMIGOS DE CHICAUMA</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:3px;color:var(--text2)">AMIGOS DEL PIPE</div>
     <div class="spinner"></div>
     <div style="color:var(--text2);font-size:.82rem">Conectando con Google Sheets...</div>
   </div>`;
