@@ -217,6 +217,15 @@ body > *{position:relative;z-index:1;}
 .notif-close:hover{color:var(--text);}
 /* BOTÓN CALENDARIO */
 .btn-cal{background:transparent;border:1px solid var(--verde-neon);color:var(--verde-neon);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.72rem;font-weight:600;margin-top:6px;transition:all .2s;display:inline-block;}
+.search-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.search-input{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-size:.88rem;outline:none;transition:border .2s;flex:1;min-width:180px;font-family:'Inter',sans-serif;}
+.search-input:focus{border-color:var(--verde-neon);}
+.search-input::placeholder{color:var(--text2);}
+.fecha-select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-size:.85rem;outline:none;cursor:pointer;transition:border .2s;font-family:'Inter',sans-serif;}
+.fecha-select:focus{border-color:var(--verde-neon);}
+.filter-chip{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:.75rem;color:var(--text2);display:flex;align-items:center;gap:5px;}
+.filter-chip.active{background:rgba(0,230,118,.1);border-color:var(--verde-neon);color:var(--verde-neon);}
+.no-results{text-align:center;padding:40px 20px;color:var(--text2);font-size:.9rem;background:var(--card);border-radius:12px;border:1px solid var(--border);}
 .btn-cal:hover{background:var(--verde-neon);color:var(--bg);}
 .est-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;margin-bottom:28px;}
 .est-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;}
@@ -282,112 +291,111 @@ const PTS_E=5,PTS_G=3,SYNC_MS=15000;
 
 // Equipos por grupo (para tabla y filtros)
 const GRUPOS=[
-  {id:'A',eq:[{n:'México',f:'🇲🇽'},{n:'Sudáfrica',f:'🇿🇦'},{n:'Canadá',f:'🇨🇦'},{n:'Bolivia',f:'🇧🇴'}]},
-  {id:'B',eq:[{n:'Corea del Sur',f:'🇰🇷'},{n:'Chequia',f:'🇨🇿'},{n:'Australia',f:'🇦🇺'},{n:'Turquía',f:'🇹🇷'}]},
-  {id:'C',eq:[{n:'Alemania',f:'🇩🇪'},{n:'Curazao',f:'🇨🇼'},{n:'Países Bajos',f:'🇳🇱'},{n:'Japón',f:'🇯🇵'}]},
-  {id:'D',eq:[{n:'Costa de Marfil',f:'🇨🇮'},{n:'Ecuador',f:'🇪🇨'},{n:'Suecia',f:'🇸🇪'},{n:'Túnez',f:'🇹🇳'}]},
-  {id:'E',eq:[{n:'España',f:'🇪🇸'},{n:'Cabo Verde',f:'🇨🇻'},{n:'Bélgica',f:'🇧🇪'},{n:'Egipto',f:'🇪🇬'}]},
-  {id:'F',eq:[{n:'Arabia Saudita',f:'🇸🇦'},{n:'Uruguay',f:'🇺🇾'},{n:'Ri de Irán',f:'🇮🇷'},{n:'Nueva Zelanda',f:'🇳🇿'}]},
-  {id:'G',eq:[{n:'Francia',f:'🇫🇷'},{n:'Senegal',f:'🇸🇳'},{n:'Irak',f:'🇮🇶'},{n:'Noruega',f:'🇳🇴'}]},
-  {id:'H',eq:[{n:'Argentina',f:'🇦🇷'},{n:'Austria',f:'🇦🇹'},{n:'Jordania',f:'🇯🇴'},{n:'Argelia',f:'🇩🇿'}]},
-  {id:'I',eq:[{n:'Portugal',f:'🇵🇹'},{n:'Uzbekistán',f:'🇺🇿'},{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},{n:'Ghana',f:'🇬🇭'}]},
-  {id:'J',eq:[{n:'Panamá',f:'🇵🇦'},{n:'Croacia',f:'🇭🇷'},{n:'Colombia',f:'🇨🇴'},{n:'RD Congo',f:'🇨🇩'}]},
-  {id:'K',eq:[{n:'Suiza',f:'🇨🇭'},{n:'Canadá 2',f:'🇨🇦'},{n:'Bosnia y Herz.',f:'🇧🇦'},{n:'Catar',f:'🇶🇦'}]},
-  {id:'L',eq:[{n:'Brasil',f:'🇧🇷'},{n:'Haití',f:'🇭🇹'},{n:'Marruecos',f:'🇲🇦'},{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'}]},
+  {id:'A',eq:[{n:'México',f:'🇲🇽'},{n:'Sudáfrica',f:'🇿🇦'},{n:'Corea del Sur',f:'🇰🇷'},{n:'Rep. Checa',f:'🇨🇿'}]},
+  {id:'B',eq:[{n:'Canadá',f:'🇨🇦'},{n:'Bosnia y Herz.',f:'🇧🇦'},{n:'Qatar',f:'🇶🇦'},{n:'Suiza',f:'🇨🇭'}]},
+  {id:'C',eq:[{n:'Brasil',f:'🇧🇷'},{n:'Marruecos',f:'🇲🇦'},{n:'Haití',f:'🇭🇹'},{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'}]},
+  {id:'D',eq:[{n:'EE.UU.',f:'🇺🇸'},{n:'Paraguay',f:'🇵🇾'},{n:'Australia',f:'🇦🇺'},{n:'Turquía',f:'🇹🇷'}]},
+  {id:'E',eq:[{n:'Alemania',f:'🇩🇪'},{n:'Curazao',f:'🇨🇼'},{n:'Costa de Marfil',f:'🇨🇮'},{n:'Ecuador',f:'🇪🇨'}]},
+  {id:'F',eq:[{n:'Países Bajos',f:'🇳🇱'},{n:'Japón',f:'🇯🇵'},{n:'Suecia',f:'🇸🇪'},{n:'Túnez',f:'🇹🇳'}]},
+  {id:'G',eq:[{n:'Bélgica',f:'🇧🇪'},{n:'Egipto',f:'🇪🇬'},{n:'Irán',f:'🇮🇷'},{n:'Nueva Zelanda',f:'🇳🇿'}]},
+  {id:'H',eq:[{n:'España',f:'🇪🇸'},{n:'Cabo Verde',f:'🇨🇻'},{n:'Arabia Saudita',f:'🇸🇦'},{n:'Uruguay',f:'🇺🇾'}]},
+  {id:'I',eq:[{n:'Francia',f:'🇫🇷'},{n:'Senegal',f:'🇸🇳'},{n:'Irak',f:'🇮🇶'},{n:'Noruega',f:'🇳🇴'}]},
+  {id:'J',eq:[{n:'Argentina',f:'🇦🇷'},{n:'Argelia',f:'🇩🇿'},{n:'Austria',f:'🇦🇹'},{n:'Jordania',f:'🇯🇴'}]},
+  {id:'K',eq:[{n:'Portugal',f:'🇵🇹'},{n:'RD Congo',f:'🇨🇩'},{n:'Uzbekistán',f:'🇺🇿'},{n:'Colombia',f:'🇨🇴'}]},
+  {id:'L',eq:[{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},{n:'Croacia',f:'🇭🇷'},{n:'Ghana',f:'🇬🇭'},{n:'Panamá',f:'🇵🇦'}]},
 ];
 
-// Partidos EXACTOS del calendario imagen — id único, loc=local, vis=visitante, fd=fecha+hora Chile
+// Partidos oficiales FIFA 2026 — horario Chile (CHI = UTC-4 en junio)
 const TODOS=[
   // JUN 11
   {id:'A01',gid:'A',loc:{n:'México',f:'🇲🇽'},vis:{n:'Sudáfrica',f:'🇿🇦'},fd:'11 Jun 15:00'},
+  {id:'A02',gid:'A',loc:{n:'Corea del Sur',f:'🇰🇷'},vis:{n:'Rep. Checa',f:'🇨🇿'},fd:'11 Jun 22:00'},
   // JUN 12
-  {id:'B01',gid:'B',loc:{n:'Corea del Sur',f:'🇰🇷'},vis:{n:'Chequia',f:'🇨🇿'},fd:'11 Jun 22:00'},
-  {id:'K01',gid:'K',loc:{n:'Canadá 2',f:'🇨🇦'},vis:{n:'Bosnia y Herz.',f:'🇧🇦'},fd:'12 Jun 15:00'},
-  {id:'A02',gid:'A',loc:{n:'Estados Unidos',f:'🇺🇸'},vis:{n:'Paraguay',f:'🇵🇾'},fd:'12 Jun 21:00'},
-  {id:'K02',gid:'K',loc:{n:'Catar',f:'🇶🇦'},vis:{n:'Suiza',f:'🇨🇭'},fd:'13 Jun 15:00'},
+  {id:'B01',gid:'B',loc:{n:'Canadá',f:'🇨🇦'},vis:{n:'Bosnia y Herz.',f:'🇧🇦'},fd:'12 Jun 15:00'},
+  {id:'D01',gid:'D',loc:{n:'EE.UU.',f:'🇺🇸'},vis:{n:'Paraguay',f:'🇵🇾'},fd:'12 Jun 21:00'},
   // JUN 13
-  {id:'L01',gid:'L',loc:{n:'Brasil',f:'🇧🇷'},vis:{n:'Marruecos',f:'🇲🇦'},fd:'13 Jun 18:00'},
-  {id:'L02',gid:'L',loc:{n:'Haití',f:'🇭🇹'},vis:{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'},fd:'13 Jun 21:00'},
+  {id:'B02',gid:'B',loc:{n:'Qatar',f:'🇶🇦'},vis:{n:'Suiza',f:'🇨🇭'},fd:'13 Jun 15:00'},
+  {id:'C01',gid:'C',loc:{n:'Brasil',f:'🇧🇷'},vis:{n:'Marruecos',f:'🇲🇦'},fd:'13 Jun 18:00'},
+  {id:'C02',gid:'C',loc:{n:'Haití',f:'🇭🇹'},vis:{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'},fd:'13 Jun 21:00'},
+  {id:'D02',gid:'D',loc:{n:'Australia',f:'🇦🇺'},vis:{n:'Turquía',f:'🇹🇷'},fd:'14 Jun 00:00'},
   // JUN 14
-  {id:'B02',gid:'B',loc:{n:'Australia',f:'🇦🇺'},vis:{n:'Turquía',f:'🇹🇷'},fd:'14 Jun 00:00'},
-  {id:'C01',gid:'C',loc:{n:'Alemania',f:'🇩🇪'},vis:{n:'Curazao',f:'🇨🇼'},fd:'14 Jun 13:00'},
-  {id:'C02',gid:'C',loc:{n:'Países Bajos',f:'🇳🇱'},vis:{n:'Japón',f:'🇯🇵'},fd:'14 Jun 16:00'},
-  {id:'D01',gid:'D',loc:{n:'Costa de Marfil',f:'🇨🇮'},vis:{n:'Ecuador',f:'🇪🇨'},fd:'14 Jun 19:00'},
-  {id:'D02',gid:'D',loc:{n:'Suecia',f:'🇸🇪'},vis:{n:'Túnez',f:'🇹🇳'},fd:'14 Jun 22:00'},
+  {id:'E01',gid:'E',loc:{n:'Alemania',f:'🇩🇪'},vis:{n:'Curazao',f:'🇨🇼'},fd:'14 Jun 13:00'},
+  {id:'F01',gid:'F',loc:{n:'Países Bajos',f:'🇳🇱'},vis:{n:'Japón',f:'🇯🇵'},fd:'14 Jun 16:00'},
+  {id:'E02',gid:'E',loc:{n:'Costa de Marfil',f:'🇨🇮'},vis:{n:'Ecuador',f:'🇪🇨'},fd:'14 Jun 19:00'},
+  {id:'F02',gid:'F',loc:{n:'Suecia',f:'🇸🇪'},vis:{n:'Túnez',f:'🇹🇳'},fd:'14 Jun 22:00'},
   // JUN 15
-  {id:'E01',gid:'E',loc:{n:'España',f:'🇪🇸'},vis:{n:'Cabo Verde',f:'🇨🇻'},fd:'15 Jun 12:00'},
-  {id:'E02',gid:'E',loc:{n:'Bélgica',f:'🇧🇪'},vis:{n:'Egipto',f:'🇪🇬'},fd:'15 Jun 15:00'},
-  {id:'F01',gid:'F',loc:{n:'Arabia Saudita',f:'🇸🇦'},vis:{n:'Uruguay',f:'🇺🇾'},fd:'15 Jun 18:00'},
-  {id:'F02',gid:'F',loc:{n:'Ri de Irán',f:'🇮🇷'},vis:{n:'Nueva Zelanda',f:'🇳🇿'},fd:'15 Jun 21:00'},
+  {id:'H01',gid:'H',loc:{n:'España',f:'🇪🇸'},vis:{n:'Cabo Verde',f:'🇨🇻'},fd:'15 Jun 12:00'},
+  {id:'G01',gid:'G',loc:{n:'Bélgica',f:'🇧🇪'},vis:{n:'Egipto',f:'🇪🇬'},fd:'15 Jun 15:00'},
+  {id:'H02',gid:'H',loc:{n:'Arabia Saudita',f:'🇸🇦'},vis:{n:'Uruguay',f:'🇺🇾'},fd:'15 Jun 18:00'},
+  {id:'G02',gid:'G',loc:{n:'Irán',f:'🇮🇷'},vis:{n:'Nueva Zelanda',f:'🇳🇿'},fd:'15 Jun 21:00'},
   // JUN 16
-  {id:'G01',gid:'G',loc:{n:'Francia',f:'🇫🇷'},vis:{n:'Senegal',f:'🇸🇳'},fd:'16 Jun 15:00'},
-  {id:'G02',gid:'G',loc:{n:'Irak',f:'🇮🇶'},vis:{n:'Noruega',f:'🇳🇴'},fd:'16 Jun 18:00'},
-  {id:'H01',gid:'H',loc:{n:'Argentina',f:'🇦🇷'},vis:{n:'Argelia',f:'🇩🇿'},fd:'16 Jun 21:00'},
+  {id:'I01',gid:'I',loc:{n:'Francia',f:'🇫🇷'},vis:{n:'Senegal',f:'🇸🇳'},fd:'16 Jun 15:00'},
+  {id:'I02',gid:'I',loc:{n:'Irak',f:'🇮🇶'},vis:{n:'Noruega',f:'🇳🇴'},fd:'16 Jun 18:00'},
+  {id:'J01',gid:'J',loc:{n:'Argentina',f:'🇦🇷'},vis:{n:'Argelia',f:'🇩🇿'},fd:'16 Jun 21:00'},
+  {id:'J02',gid:'J',loc:{n:'Austria',f:'🇦🇹'},vis:{n:'Jordania',f:'🇯🇴'},fd:'17 Jun 00:00'},
   // JUN 17
-  {id:'H02',gid:'H',loc:{n:'Austria',f:'🇦🇹'},vis:{n:'Jordania',f:'🇯🇴'},fd:'17 Jun 00:00'},
-  {id:'I01',gid:'I',loc:{n:'Portugal',f:'🇵🇹'},vis:{n:'RD Congo',f:'🇨🇩'},fd:'17 Jun 13:00'},
-  {id:'I02',gid:'I',loc:{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},vis:{n:'Croacia',f:'🇭🇷'},fd:'17 Jun 16:00'},
-  {id:'J01',gid:'J',loc:{n:'Ghana',f:'🇬🇭'},vis:{n:'Panamá',f:'🇵🇦'},fd:'17 Jun 19:00'},
-  {id:'J02',gid:'J',loc:{n:'Uzbekistán',f:'🇺🇿'},vis:{n:'Colombia',f:'🇨🇴'},fd:'17 Jun 22:00'},
+  {id:'K01',gid:'K',loc:{n:'Portugal',f:'🇵🇹'},vis:{n:'RD Congo',f:'🇨🇩'},fd:'17 Jun 13:00'},
+  {id:'L01',gid:'L',loc:{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},vis:{n:'Croacia',f:'🇭🇷'},fd:'17 Jun 16:00'},
+  {id:'L02',gid:'L',loc:{n:'Ghana',f:'🇬🇭'},vis:{n:'Panamá',f:'🇵🇦'},fd:'17 Jun 19:00'},
+  {id:'K02',gid:'K',loc:{n:'Uzbekistán',f:'🇺🇿'},vis:{n:'Colombia',f:'🇨🇴'},fd:'17 Jun 22:00'},
   // JUN 18
-  {id:'A03',gid:'A',loc:{n:'Chequia',f:'🇨🇿'},vis:{n:'Sudáfrica',f:'🇿🇦'},fd:'18 Jun 12:00'},
-  {id:'K03',gid:'K',loc:{n:'Suiza',f:'🇨🇭'},vis:{n:'Bosnia y Herz.',f:'🇧🇦'},fd:'18 Jun 15:00'},
-  {id:'A04',gid:'A',loc:{n:'Canadá',f:'🇨🇦'},vis:{n:'Catar',f:'🇶🇦'},fd:'18 Jun 18:00'},
-  {id:'B03',gid:'B',loc:{n:'México',f:'🇲🇽'},vis:{n:'Corea del Sur',f:'🇰🇷'},fd:'18 Jun 21:00'},
+  {id:'A03',gid:'A',loc:{n:'Rep. Checa',f:'🇨🇿'},vis:{n:'Sudáfrica',f:'🇿🇦'},fd:'18 Jun 12:00'},
+  {id:'B03',gid:'B',loc:{n:'Suiza',f:'🇨🇭'},vis:{n:'Bosnia y Herz.',f:'🇧🇦'},fd:'18 Jun 15:00'},
+  {id:'B04',gid:'B',loc:{n:'Canadá',f:'🇨🇦'},vis:{n:'Qatar',f:'🇶🇦'},fd:'18 Jun 18:00'},
+  {id:'A04',gid:'A',loc:{n:'México',f:'🇲🇽'},vis:{n:'Corea del Sur',f:'🇰🇷'},fd:'18 Jun 21:00'},
   // JUN 19
-  {id:'A05',gid:'A',loc:{n:'Estados Unidos',f:'🇺🇸'},vis:{n:'Australia',f:'🇦🇺'},fd:'19 Jun 22:00'},
-  {id:'L03',gid:'L',loc:{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'},vis:{n:'Marruecos',f:'🇲🇦'},fd:'19 Jun 18:00'},
-  {id:'L04',gid:'L',loc:{n:'Brasil',f:'🇧🇷'},vis:{n:'Haití',f:'🇭🇹'},fd:'19 Jun 21:00'},
+  {id:'D03',gid:'D',loc:{n:'EE.UU.',f:'🇺🇸'},vis:{n:'Australia',f:'🇦🇺'},fd:'19 Jun 22:00'},
+  {id:'C03',gid:'C',loc:{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'},vis:{n:'Marruecos',f:'🇲🇦'},fd:'19 Jun 18:00'},
+  {id:'C04',gid:'C',loc:{n:'Brasil',f:'🇧🇷'},vis:{n:'Haití',f:'🇭🇹'},fd:'19 Jun 21:00'},
+  {id:'D04',gid:'D',loc:{n:'Turquía',f:'🇹🇷'},vis:{n:'Paraguay',f:'🇵🇾'},fd:'20 Jun 00:00'},
   // JUN 20
-  {id:'B04',gid:'B',loc:{n:'Turquía',f:'🇹🇷'},vis:{n:'Paraguay',f:'🇵🇾'},fd:'20 Jun 00:00'},
-  {id:'C03',gid:'C',loc:{n:'Países Bajos',f:'🇳🇱'},vis:{n:'Suecia',f:'🇸🇪'},fd:'20 Jun 13:00'},
-  {id:'C04',gid:'C',loc:{n:'Alemania',f:'🇩🇪'},vis:{n:'Costa de Marfil',f:'🇨🇮'},fd:'20 Jun 16:00'},
-  {id:'D03',gid:'D',loc:{n:'Ecuador',f:'🇪🇨'},vis:{n:'Curazao',f:'🇨🇼'},fd:'20 Jun 20:00'},
-  {id:'D04',gid:'D',loc:{n:'Túnez',f:'🇹🇳'},vis:{n:'Japón',f:'🇯🇵'},fd:'21 Jun 00:00'},
+  {id:'F03',gid:'F',loc:{n:'Países Bajos',f:'🇳🇱'},vis:{n:'Suecia',f:'🇸🇪'},fd:'20 Jun 13:00'},
+  {id:'E03',gid:'E',loc:{n:'Alemania',f:'🇩🇪'},vis:{n:'Costa de Marfil',f:'🇨🇮'},fd:'20 Jun 16:00'},
+  {id:'E04',gid:'E',loc:{n:'Ecuador',f:'🇪🇨'},vis:{n:'Curazao',f:'🇨🇼'},fd:'20 Jun 20:00'},
+  {id:'F04',gid:'F',loc:{n:'Túnez',f:'🇹🇳'},vis:{n:'Japón',f:'🇯🇵'},fd:'21 Jun 00:00'},
   // JUN 21
-  {id:'E03',gid:'E',loc:{n:'España',f:'🇪🇸'},vis:{n:'Arabia Saudita',f:'🇸🇦'},fd:'21 Jun 12:00'},
-  {id:'E04',gid:'E',loc:{n:'Bélgica',f:'🇧🇪'},vis:{n:'Ri de Irán',f:'🇮🇷'},fd:'21 Jun 15:00'},
-  {id:'F03',gid:'F',loc:{n:'Uruguay',f:'🇺🇾'},vis:{n:'Cabo Verde',f:'🇨🇻'},fd:'21 Jun 18:00'},
-  {id:'F04',gid:'F',loc:{n:'Nueva Zelanda',f:'🇳🇿'},vis:{n:'Egipto',f:'🇪🇬'},fd:'21 Jun 21:00'},
+  {id:'H03',gid:'H',loc:{n:'España',f:'🇪🇸'},vis:{n:'Arabia Saudita',f:'🇸🇦'},fd:'21 Jun 12:00'},
+  {id:'G03',gid:'G',loc:{n:'Bélgica',f:'🇧🇪'},vis:{n:'Irán',f:'🇮🇷'},fd:'21 Jun 15:00'},
+  {id:'H04',gid:'H',loc:{n:'Uruguay',f:'🇺🇾'},vis:{n:'Cabo Verde',f:'🇨🇻'},fd:'21 Jun 18:00'},
+  {id:'G04',gid:'G',loc:{n:'Nueva Zelanda',f:'🇳🇿'},vis:{n:'Egipto',f:'🇪🇬'},fd:'21 Jun 21:00'},
   // JUN 22
-  {id:'G03',gid:'G',loc:{n:'Argentina',f:'🇦🇷'},vis:{n:'Austria',f:'🇦🇹'},fd:'22 Jun 13:00'},
-  {id:'G04',gid:'G',loc:{n:'Francia',f:'🇫🇷'},vis:{n:'Irak',f:'🇮🇶'},fd:'22 Jun 17:00'},
-  {id:'H03',gid:'H',loc:{n:'Noruega',f:'🇳🇴'},vis:{n:'Senegal',f:'🇸🇳'},fd:'22 Jun 20:00'},
-  {id:'H04',gid:'H',loc:{n:'Jordania',f:'🇯🇴'},vis:{n:'Argelia',f:'🇩🇿'},fd:'22 Jun 23:00'},
+  {id:'J03',gid:'J',loc:{n:'Argentina',f:'🇦🇷'},vis:{n:'Austria',f:'🇦🇹'},fd:'22 Jun 13:00'},
+  {id:'I03',gid:'I',loc:{n:'Francia',f:'🇫🇷'},vis:{n:'Irak',f:'🇮🇶'},fd:'22 Jun 17:00'},
+  {id:'I04',gid:'I',loc:{n:'Noruega',f:'🇳🇴'},vis:{n:'Senegal',f:'🇸🇳'},fd:'22 Jun 20:00'},
+  {id:'J04',gid:'J',loc:{n:'Jordania',f:'🇯🇴'},vis:{n:'Argelia',f:'🇩🇿'},fd:'22 Jun 23:00'},
   // JUN 23
-  {id:'I03',gid:'I',loc:{n:'Portugal',f:'🇵🇹'},vis:{n:'Uzbekistán',f:'🇺🇿'},fd:'23 Jun 13:00'},
-  {id:'I04',gid:'I',loc:{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},vis:{n:'Ghana',f:'🇬🇭'},fd:'23 Jun 16:00'},
-  {id:'J03',gid:'J',loc:{n:'Panamá',f:'🇵🇦'},vis:{n:'Croacia',f:'🇭🇷'},fd:'23 Jun 19:00'},
-  {id:'J04',gid:'J',loc:{n:'Colombia',f:'🇨🇴'},vis:{n:'RD Congo',f:'🇨🇩'},fd:'23 Jun 22:00'},
-  // JUN 24
-  {id:'K04',gid:'K',loc:{n:'Suiza',f:'🇨🇭'},vis:{n:'Canadá 2',f:'🇨🇦'},fd:'24 Jun 15:00'},
-  {id:'K05',gid:'K',loc:{n:'Bosnia y Herz.',f:'🇧🇦'},vis:{n:'Catar',f:'🇶🇦'},fd:'24 Jun 15:00'},
-  {id:'L05',gid:'L',loc:{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'},vis:{n:'Brasil',f:'🇧🇷'},fd:'24 Jun 18:00'},
-  {id:'L06',gid:'L',loc:{n:'Marruecos',f:'🇲🇦'},vis:{n:'Haití',f:'🇭🇹'},fd:'24 Jun 18:00'},
-  {id:'A06',gid:'A',loc:{n:'Chequia',f:'🇨🇿'},vis:{n:'México',f:'🇲🇽'},fd:'24 Jun 21:00'},
-  {id:'A07',gid:'A',loc:{n:'Sudáfrica',f:'🇿🇦'},vis:{n:'Corea del Sur',f:'🇰🇷'},fd:'24 Jun 21:00'},
+  {id:'K03',gid:'K',loc:{n:'Portugal',f:'🇵🇹'},vis:{n:'Uzbekistán',f:'🇺🇿'},fd:'23 Jun 13:00'},
+  {id:'L03',gid:'L',loc:{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},vis:{n:'Ghana',f:'🇬🇭'},fd:'23 Jun 16:00'},
+  {id:'L04',gid:'L',loc:{n:'Panamá',f:'🇵🇦'},vis:{n:'Croacia',f:'🇭🇷'},fd:'23 Jun 19:00'},
+  {id:'K04',gid:'K',loc:{n:'Colombia',f:'🇨🇴'},vis:{n:'RD Congo',f:'🇨🇩'},fd:'23 Jun 22:00'},
+  // JUN 24 — Jornada 3 simultánea
+  {id:'B05',gid:'B',loc:{n:'Suiza',f:'🇨🇭'},vis:{n:'Canadá',f:'🇨🇦'},fd:'24 Jun 15:00'},
+  {id:'B06',gid:'B',loc:{n:'Bosnia y Herz.',f:'🇧🇦'},vis:{n:'Qatar',f:'🇶🇦'},fd:'24 Jun 15:00'},
+  {id:'C05',gid:'C',loc:{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'},vis:{n:'Brasil',f:'🇧🇷'},fd:'24 Jun 18:00'},
+  {id:'C06',gid:'C',loc:{n:'Marruecos',f:'🇲🇦'},vis:{n:'Haití',f:'🇭🇹'},fd:'24 Jun 18:00'},
+  {id:'A05',gid:'A',loc:{n:'Rep. Checa',f:'🇨🇿'},vis:{n:'México',f:'🇲🇽'},fd:'24 Jun 21:00'},
+  {id:'A06',gid:'A',loc:{n:'Sudáfrica',f:'🇿🇦'},vis:{n:'Corea del Sur',f:'🇰🇷'},fd:'24 Jun 21:00'},
   // JUN 25
-  {id:'C05',gid:'C',loc:{n:'Ecuador',f:'🇪🇨'},vis:{n:'Alemania',f:'🇩🇪'},fd:'25 Jun 16:00'},
-  {id:'C06',gid:'C',loc:{n:'Curazao',f:'🇨🇼'},vis:{n:'Costa de Marfil',f:'🇨🇮'},fd:'25 Jun 16:00'},
-  {id:'D05',gid:'D',loc:{n:'Túnez',f:'🇹🇳'},vis:{n:'Países Bajos',f:'🇳🇱'},fd:'25 Jun 19:00'},
-  {id:'D06',gid:'D',loc:{n:'Japón',f:'🇯🇵'},vis:{n:'Suecia',f:'🇸🇪'},fd:'25 Jun 19:00'},
-  {id:'B05',gid:'B',loc:{n:'Turquía',f:'🇹🇷'},vis:{n:'Estados Unidos',f:'🇺🇸'},fd:'26 Jun 00:00'},
-  {id:'B06',gid:'B',loc:{n:'Paraguay',f:'🇵🇾'},vis:{n:'Australia',f:'🇦🇺'},fd:'26 Jun 00:00'},
+  {id:'E05',gid:'E',loc:{n:'Ecuador',f:'🇪🇨'},vis:{n:'Alemania',f:'🇩🇪'},fd:'25 Jun 16:00'},
+  {id:'E06',gid:'E',loc:{n:'Curazao',f:'🇨🇼'},vis:{n:'Costa de Marfil',f:'🇨🇮'},fd:'25 Jun 16:00'},
+  {id:'F05',gid:'F',loc:{n:'Túnez',f:'🇹🇳'},vis:{n:'Países Bajos',f:'🇳🇱'},fd:'25 Jun 19:00'},
+  {id:'F06',gid:'F',loc:{n:'Japón',f:'🇯🇵'},vis:{n:'Suecia',f:'🇸🇪'},fd:'25 Jun 19:00'},
+  {id:'D05',gid:'D',loc:{n:'Turquía',f:'🇹🇷'},vis:{n:'EE.UU.',f:'🇺🇸'},fd:'26 Jun 00:00'},
+  {id:'D06',gid:'D',loc:{n:'Paraguay',f:'🇵🇾'},vis:{n:'Australia',f:'🇦🇺'},fd:'26 Jun 00:00'},
   // JUN 26
-  {id:'G05',gid:'G',loc:{n:'Noruega',f:'🇳🇴'},vis:{n:'Francia',f:'🇫🇷'},fd:'26 Jun 15:00'},
-  {id:'G06',gid:'G',loc:{n:'Senegal',f:'🇸🇳'},vis:{n:'Irak',f:'🇮🇶'},fd:'26 Jun 15:00'},
-  {id:'F05',gid:'F',loc:{n:'Uruguay',f:'🇺🇾'},vis:{n:'España',f:'🇪🇸'},fd:'26 Jun 20:00'},
-  {id:'F06',gid:'F',loc:{n:'Cabo Verde',f:'🇨🇻'},vis:{n:'Arabia Saudita',f:'🇸🇦'},fd:'26 Jun 20:00'},
-  {id:'E05',gid:'E',loc:{n:'Nueva Zelanda',f:'🇳🇿'},vis:{n:'Bélgica',f:'🇧🇪'},fd:'26 Jun 23:00'},
-  {id:'E06',gid:'E',loc:{n:'Egipto',f:'🇪🇬'},vis:{n:'Ri de Irán',f:'🇮🇷'},fd:'26 Jun 23:00'},
+  {id:'I05',gid:'I',loc:{n:'Noruega',f:'🇳🇴'},vis:{n:'Francia',f:'🇫🇷'},fd:'26 Jun 15:00'},
+  {id:'I06',gid:'I',loc:{n:'Senegal',f:'🇸🇳'},vis:{n:'Irak',f:'🇮🇶'},fd:'26 Jun 15:00'},
+  {id:'H05',gid:'H',loc:{n:'Uruguay',f:'🇺🇾'},vis:{n:'España',f:'🇪🇸'},fd:'26 Jun 20:00'},
+  {id:'H06',gid:'H',loc:{n:'Cabo Verde',f:'🇨🇻'},vis:{n:'Arabia Saudita',f:'🇸🇦'},fd:'26 Jun 20:00'},
+  {id:'G05',gid:'G',loc:{n:'Nueva Zelanda',f:'🇳🇿'},vis:{n:'Bélgica',f:'🇧🇪'},fd:'26 Jun 23:00'},
+  {id:'G06',gid:'G',loc:{n:'Egipto',f:'🇪🇬'},vis:{n:'Irán',f:'🇮🇷'},fd:'26 Jun 23:00'},
   // JUN 27
-  {id:'J05',gid:'J',loc:{n:'Panamá',f:'🇵🇦'},vis:{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},fd:'27 Jun 17:00'},
-  {id:'J06',gid:'J',loc:{n:'Croacia',f:'🇭🇷'},vis:{n:'Ghana',f:'🇬🇭'},fd:'27 Jun 17:00'},
-  {id:'I05',gid:'I',loc:{n:'Colombia',f:'🇨🇴'},vis:{n:'Portugal',f:'🇵🇹'},fd:'27 Jun 19:30'},
-  {id:'I06',gid:'I',loc:{n:'RD Congo',f:'🇨🇩'},vis:{n:'Uzbekistán',f:'🇺🇿'},fd:'27 Jun 19:30'},
-  // JUN 28
-  {id:'H05',gid:'H',loc:{n:'Jordania',f:'🇯🇴'},vis:{n:'Argentina',f:'🇦🇷'},fd:'28 Jun 00:00'},
-  {id:'H06',gid:'H',loc:{n:'Argelia',f:'🇩🇿'},vis:{n:'Austria',f:'🇦🇹'},fd:'28 Jun 00:00'},
+  {id:'L05',gid:'L',loc:{n:'Panamá',f:'🇵🇦'},vis:{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},fd:'27 Jun 17:00'},
+  {id:'L06',gid:'L',loc:{n:'Croacia',f:'🇭🇷'},vis:{n:'Ghana',f:'🇬🇭'},fd:'27 Jun 17:00'},
+  {id:'K05',gid:'K',loc:{n:'Colombia',f:'🇨🇴'},vis:{n:'Portugal',f:'🇵🇹'},fd:'27 Jun 19:30'},
+  {id:'K06',gid:'K',loc:{n:'RD Congo',f:'🇨🇩'},vis:{n:'Uzbekistán',f:'🇺🇿'},fd:'27 Jun 19:30'},
+  {id:'J05',gid:'J',loc:{n:'Jordania',f:'🇯🇴'},vis:{n:'Argentina',f:'🇦🇷'},fd:'28 Jun 00:00'},
+  {id:'J06',gid:'J',loc:{n:'Argelia',f:'🇩🇿'},vis:{n:'Austria',f:'🇦🇹'},fd:'28 Jun 00:00'},
 ];
 const CLR=['#00e676','#f5c518','#ff4081','#4488ff','#ff9800','#e91e63','#00bcd4','#8bc34a','#9c27b0','#ff5722'];
 function uclr(n){let h=0;for(let c of n)h=(h+c.charCodeAt(0))%CLR.length;return CLR[h];}
@@ -556,6 +564,31 @@ function rPartidos(){
   const am=apMap(),ma=am[S.user.user]||{};
   const gs=['Todos',...GRUPOS.map(g=>`Grupo ${g.id}`)],fg=S.fg;
   const ac=Object.keys(ma).length,tot=TODOS.length;
+
+  // Fechas únicas
+  const fechas=[...new Set(TODOS.map(p=>p.fd.split(' ').slice(0,2).join(' ')))].sort((a,b)=>{
+    const ms={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6};
+    const [da,ma2]=a.split(' '); const [db,mb]=b.split(' ');
+    return (ms[ma2]||5)*31+parseInt(da) - ((ms[mb]||5)*31+parseInt(db));
+  });
+
+  const busq=S.busqEquipo||'';
+  const fechaSel=S.fechaSel||'Todas';
+  const estadoFil=S.estadoFil||'Todos';
+
+  // Filtrar partidos
+  let partidosFiltrados=TODOS.filter(p=>{
+    if(fg!=='Todos'&&`Grupo ${p.gid}`!==fg) return false;
+    if(busq&&p.loc.n!==busq&&p.vis.n!==busq) return false;
+    if(fechaSel!=='Todas'&&!p.fd.startsWith(fechaSel)) return false;
+    if(estadoFil==='Sin apostar'&&ma[p.id]) return false;
+    if(estadoFil==='Apostados'&&!ma[p.id]) return false;
+    return true;
+  });
+
+  const totalFiltrados=partidosFiltrados.length;
+  const hayFiltros=busq||fechaSel!=='Todas'||estadoFil!=='Todos'||fg!=='Todos';
+
   return`
   <div class="stats-strip">
     <div class="stat-p"><div class="lbl">Mis apuestas</div><div class="val">${ac}</div><div class="sub">de ${tot}</div></div>
@@ -564,12 +597,66 @@ function rPartidos(){
     <div class="stat-p"><div class="lbl">Pts exacto</div><div class="val">${PTS_E}</div><div class="sub">resultado exacto</div></div>
     <div class="stat-p"><div class="lbl">Pts ganador</div><div class="val">${PTS_G}</div><div class="sub">solo el ganador</div></div>
   </div>
-  <div class="flex-g" style="margin-bottom:18px">
-    ${gs.map(g=>`<button class="apuesta-btn ${fg===g?'selected':''}" data-fg="${g}">${g}</button>`).join('')}
+
+  <!-- BARRA DE BÚSQUEDA -->
+  <div class="search-bar">
+    <select class="fecha-select" id="busq-equipo" style="flex:1;min-width:180px" onchange="S.busqEquipo=this.value;S.fg='Todos';renderPartidosLive()">
+      <option value="">⚽ Todos los equipos</option>
+      ${[...new Set(TODOS.flatMap(p=>[p.loc.n,p.vis.n]))].sort().map(eq=>`
+        <option value="${eq}" ${(S.busqEquipo||'')===eq?'selected':''}>${eq}</option>`).join('')}
+    </select>
+    <select class="fecha-select" id="fecha-sel" onchange="S.fechaSel=this.value;renderPartidosLive()">
+      <option value="Todas" ${fechaSel==='Todas'?'selected':''}>📅 Todas las fechas</option>
+      ${fechas.map(f=>`<option value="${f}" ${fechaSel===f?'selected':''}>${f}</option>`).join('')}
+    </select>
+    <select class="fecha-select" id="estado-sel" onchange="S.estadoFil=this.value;renderPartidosLive()">
+      <option value="Todos" ${estadoFil==='Todos'?'selected':''}>⚽ Todos</option>
+      <option value="Sin apostar" ${estadoFil==='Sin apostar'?'selected':''}>📋 Sin apostar</option>
+      <option value="Apostados" ${estadoFil==='Apostados'?'selected':''}>✅ Apostados</option>
+    </select>
+    ${hayFiltros?`<button class="apuesta-btn" onclick="S.busqEquipo='';S.fechaSel='Todas';S.estadoFil='Todos';S.fg='Todos';render()">✕ Limpiar</button>`:''}
   </div>
-  ${GRUPOS.filter(g=>fg==='Todos'||fg===`Grupo ${g.id}`).map(g=>{
-    const ps=TODOS.filter(p=>p.gid===g.id);
-    return`<div class="grupo-header"><div class="grupo-badge">GRUPO ${g.id}</div><div style="color:var(--text2);font-size:.75rem;padding-left:8px">${g.eq.map(e=>e.f).join(' ')}</div><div class="grupo-line"></div></div>
+
+  <!-- FILTROS POR GRUPO -->
+  <div class="flex-g" style="margin-bottom:18px">
+    ${['Todos',...GRUPOS.map(g=>`Grupo ${g.id}`)].map(g=>`<button class="apuesta-btn ${fg===g?'selected':''}" data-fg="${g}">${g}</button>`).join('')}
+  </div>
+
+  ${hayFiltros?`<div style="font-size:.8rem;color:var(--text2);margin-bottom:14px">Mostrando <strong style="color:var(--text)">${totalFiltrados}</strong> partido${totalFiltrados!==1?'s':''}</div>`:''}
+
+  <div id="partidos-lista">
+    ${renderListaPartidos(partidosFiltrados, ma, hayFiltros)}
+  </div>`;
+}
+
+function renderListaPartidos(lista, ma, flat=false){
+  if(!lista.length) return`<div class="no-results">🔍 No se encontraron partidos con esos filtros</div>`;
+
+  if(flat){
+    // Vista plana sin headers de grupo cuando hay búsqueda
+    return lista.map(p=>{const ap=ma[p.id];return`
+      <div class="partido-card ${ap?'apostado':''}">
+        <div style="display:flex;flex-direction:column;gap:2px;min-width:90px">
+          <div class="partido-fecha">${p.fd}</div>
+          <div style="font-size:.7rem;color:var(--verde-neon);font-weight:600">Grupo ${p.gid}</div>
+        </div>
+        <div class="partido-equipos">
+          <div class="equipo-nombre home">${p.loc.f} ${p.loc.n}</div>
+          ${ap?`<div class="vs-badge" style="background:rgba(0,230,118,.1);border-color:var(--verde-neon);color:var(--verde-neon);padding:4px 13px">${ap.l} - ${ap.v}</div>`:`<div class="vs-badge">VS</div>`}
+          <div class="equipo-nombre away">${p.vis.n} ${p.vis.f}</div>
+        </div>
+        ${ap?`<div class="ap-ok">✅ Apostado</div>`:`<button class="btn-save" data-pid="${p.id}">+ Apostar</button>`}
+        ${(()=>{const cd=getCountdown(p.id);return cd?`<div class="countdown ${cd.tipo}" data-countdown="${p.id}">${cd.txt}</div>`:''})()}
+        <button class="btn-cal" data-addcal="${p.id}" title="Agregar al calendario">📅</button>
+      </div>`;}).join('');
+  }
+
+  // Vista agrupada por grupo (default)
+  const gids=[...new Set(lista.map(p=>p.gid))];
+  return gids.map(gid=>{
+    const g=GRUPOS.find(x=>x.id===gid);
+    const ps=lista.filter(p=>p.gid===gid);
+    return`<div class="grupo-header"><div class="grupo-badge">GRUPO ${gid}</div><div style="color:var(--text2);font-size:.75rem;padding-left:8px">${g?g.eq.map(e=>e.f).join(' '):''}</div><div class="grupo-line"></div></div>
     ${ps.map(p=>{const ap=ma[p.id];return`
       <div class="partido-card ${ap?'apostado':''}">
         <div class="partido-fecha">${p.fd}</div>
@@ -582,7 +669,37 @@ function rPartidos(){
         ${(()=>{const cd=getCountdown(p.id);return cd?`<div class="countdown ${cd.tipo}" data-countdown="${p.id}">${cd.txt}</div>`:''})()}
         <button class="btn-cal" data-addcal="${p.id}" title="Agregar al calendario">📅</button>
       </div>`;}).join('')}`;
-  }).join('')}`;
+  }).join('');
+}
+
+function renderPartidosLive(){
+  const lista=document.getElementById('partidos-lista');
+  if(!lista) return;
+  const am=apMap(),ma=am[S.user.user]||{};
+  const busq=S.busqEquipo||'';
+  const fechaSel=S.fechaSel||'Todas';
+  const estadoFil=S.estadoFil||'Todos';
+  const fg=S.fg;
+  const filtrados=TODOS.filter(p=>{
+    if(fg!=='Todos'&&`Grupo ${p.gid}`!==fg) return false;
+    if(busq&&p.loc.n!==busq&&p.vis.n!==busq) return false;
+    if(fechaSel!=='Todas'&&!p.fd.startsWith(fechaSel)) return false;
+    if(estadoFil==='Sin apostar'&&ma[p.id]) return false;
+    if(estadoFil==='Apostados'&&!ma[p.id]) return false;
+    return true;
+  });
+  const hayFiltros=busq||fechaSel!=='Todas'||estadoFil!=='Todos'||fg!=='Todos';
+  lista.innerHTML=renderListaPartidos(filtrados,ma,hayFiltros);
+  // re-bind botones
+  document.querySelectorAll('[data-pid].btn-save:not(.rs)').forEach(el=>{
+    el.addEventListener('click',()=>{const p=TODOS.find(x=>x.id===el.dataset.pid);ss({modal:p,mL:'0',mV:'0'});});
+  });
+  document.querySelectorAll('[data-addcal]').forEach(el=>{
+    el.addEventListener('click',()=>agregarAlCalendario(el.dataset.addcal));
+  });
+  // contador vivo
+  const n=document.querySelector('.search-bar + .flex-g + div');
+  if(n&&hayFiltros) n.innerHTML=`Mostrando <strong style="color:var(--text)">${filtrados.length}</strong> partido${filtrados.length!==1?'s':''}`;
 }
 
 // MODAL
